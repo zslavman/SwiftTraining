@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import ImageIO
+
 
 class PopularTVC: UITableViewController {
     
@@ -132,10 +134,8 @@ class PopularTVC: UITableViewController {
                     do{
                         let imgData = try Data(contentsOf: url)
                         
-                        if data != nil{
-                            self.DB[i] = imgData
-                        }
-                        
+                        self.DB[i] = imgData
+
                         OperationQueue.main.addOperation({
                             self.tableView.reloadData()
                         })
@@ -167,6 +167,17 @@ class PopularTVC: UITableViewController {
         let selectedCell:UITableViewCell = tableView.cellForRow(at: indexPath)!
         selectedCell.contentView.backgroundColor = #colorLiteral(red: 0.721867955, green: 0.7081359182, blue: 0.9016706576, alpha: 1)
         print(DB[indexPath.row] as Any)
+        
+        let fileURL = DB[indexPath.row]
+        if let imageSource = CGImageSourceCreateWithURL(fileURL as! CFURL, nil) {
+            let imageProperties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil)
+            if let dict = imageProperties as? [String: Any] {
+                print(dict)
+            }
+        }
+        
+        
+        
         //        tableView.deselectRow(at: indexPath, animated: true)
     }
     
