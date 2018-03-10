@@ -16,17 +16,17 @@ class PopularTVC: UITableViewController {
     var somePics:Array<String> = []
     var spiner:UIActivityIndicatorView!
     
+    var DB = [Data?](repeatElement(nil, count: 15))
+    
     
     
     
     override func viewDidLoad() {
+        
         super.viewDidLoad()
         
         // избавляемся от пустых ячеек
         tableView.tableFooterView = UIView(frame: CGRect.zero) // говорим, что футер должен быть 0-вого размера
-        
-        
-        fetchImages()
         
         // перевести операции в основной поток (из фонового, который по умолчанию)
         //        DispatchQueue.main.async {
@@ -35,6 +35,15 @@ class PopularTVC: UITableViewController {
     }
     
     
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        fetchImages()
+        
+    }
+
     
     
     
@@ -66,7 +75,6 @@ class PopularTVC: UITableViewController {
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
-    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return someNames.count
     }
@@ -80,26 +88,16 @@ class PopularTVC: UITableViewController {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "popularCell", for: indexPath)
         cell.textLabel?.text = someNames[indexPath.row]
-        // по умолчанию загружаем картинку из проекта
-        cell.imageView?.image = UIImage(named: "photo")
-        //        addSpiner(toItem: cell.imageView!)
+        addSpiner(toItem: cell.imageView!)
         
-        var link:String = secur
-        
-        if indexPath.row < 10 {
-            link += "0" + String(indexPath.row) + ".jpg"
+        if let baza = DB[indexPath.row]{
+            cell.imageView?.image = UIImage(data: baza)
+            spiner.stopAnimating()
         }
-        else{
-            link += String(indexPath.row) + ".jpg"
+        else {
+            // по умолчанию загружаем картинку из проекта
+            cell.imageView?.image = UIImage(named: "photo")
         }
-        if let imgURL = URL(string: link){
-            DispatchQueue.main.async {
-                let imgData = NSData(contentsOf: imgURL)
-                cell.imageView?.image = UIImage(data: imgData as! Data)
-                //                self.spiner.stopAnimating()
-            }
-        }
-        
         
         // закруглим изображения
         cell.imageView?.layer.cornerRadius = 10 // аля маска
@@ -117,45 +115,58 @@ class PopularTVC: UITableViewController {
     
     
     
-    var DB:[Data] = []
-    
+
+    // Получение картинок с сервера
     func fetchImages() -> Void{
         
         for i in 0..<15{
-            var link:String = secur
             
+            var link:String = secur + String(i) + ".jpg"
+           
             if i < 10 {
-                link += "0" + String(i) + ".jpg"
+                link = secur + "0" + String(i) + ".jpg"
             }
-            else{
-                link += String(i) + ".jpg"
+
+            if let url = URL(string: link){
+                URLSession.shared.dataTask(with: url, completionHandler: {(data, response, error) -> Void in
+                    do{
+                        let imgData = try Data(contentsOf: url)
+                        
+                        if data != nil{
+                            self.DB[i] = imgData
+                        }
+                        
+                        OperationQueue.main.addOperation({
+                            self.tableView.reloadData()
+                        })
+                    }
+                    catch{
+                        print(error.localizedDescription)
+                    }
+  
+                }).resume()
             }
-            if URL(string: link) != nil{
-                DispatchQueue.main.async{
-                    let imgData = try? Data(contentsOf: <#T##URL#>)
-                    self.DB.append(imgData!)
-                }
-                tableView.reloadData()
+            else {
+                print("Не удается загрузить: \(link)")
             }
+
+            
+            
         }
-        
-        
     }
+                
     
     
     
     
-    
-    
-    
-    
-    
+
     
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         let selectedCell:UITableViewCell = tableView.cellForRow(at: indexPath)!
         selectedCell.contentView.backgroundColor = #colorLiteral(red: 0.721867955, green: 0.7081359182, blue: 0.9016706576, alpha: 1)
+        print(DB[indexPath.row] as Any)
         //        tableView.deselectRow(at: indexPath, animated: true)
     }
     
