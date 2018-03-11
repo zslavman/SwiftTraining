@@ -89,15 +89,16 @@ class PopularTVC: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "popularCell", for: indexPath)
-        cell.textLabel?.text = someNames[indexPath.row]
         addSpiner(toItem: cell.imageView!)
         
         if let baza = DB[indexPath.row]{
+            cell.textLabel?.text = readEXIF(indexPath.row)
             cell.imageView?.image = UIImage(data: baza)
             spiner.stopAnimating()
         }
         else {
             // по умолчанию загружаем картинку из проекта
+            cell.textLabel?.text = someNames[indexPath.row]
             cell.imageView?.image = UIImage(named: "photo")
         }
         
@@ -166,25 +167,35 @@ class PopularTVC: UITableViewController {
         
         let selectedCell:UITableViewCell = tableView.cellForRow(at: indexPath)!
         selectedCell.contentView.backgroundColor = #colorLiteral(red: 0.721867955, green: 0.7081359182, blue: 0.9016706576, alpha: 1)
-        print(DB[indexPath.row] as Any)
-        
-        let fileURL = DB[indexPath.row]
-        if let imageSource = CGImageSourceCreateWithURL(fileURL as! CFURL, nil) {
-            let imageProperties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil)
-            if let dict = imageProperties as? [String: Any] {
-                print(dict)
-            }
-        }
         
         
-        
-        //        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     
     
     
     
+    // чтение EXIF
+    func readEXIF(_ numOfCell:Int) -> String{
+        
+        if let imageSource = CGImageSourceCreateWithData(DB[numOfCell] as! CFData, nil) {
+            let imageProperties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as! NSDictionary
+           
+            // дата съемки
+            let exifModel_ = imageProperties.value(forKey: "{Exif}") as! NSDictionary
+            let dateTimeOriginal = exifModel_.value(forKey:kCGImagePropertyExifDateTimeOriginal as String) as! NSString
+            print(dateTimeOriginal)
+            
+            // модель фотика
+            let tiffModel_ = imageProperties.value(forKey: "{TIFF}")
+            let cameraModel = (tiffModel_ as AnyObject).value(forKey: kCGImagePropertyTIFFModel as String) as! NSString
+            print(cameraModel)
+            
+            return dateTimeOriginal as String
+            
+        }
+        return "- - -"
+    }
     
     
     
