@@ -17,10 +17,10 @@ class PopularTVC: UITableViewController {
     let secur:String = "http://zslavman.esy.es/imgdb/sri_"
     var somePics:Array<String> = []
     var spiner:UIActivityIndicatorView!
-//    var cache = NSCache<Any, AnyObject>()
-    var cache = NSCache<AnyObject, AnyObject>()
+    var imageCache = NSCache<NSString, AnyObject>()
     
-    var DB = [Data?](repeatElement(nil, count: 15))
+//    var DB = [Data?](repeatElement(nil, count: 15))
+    let ELEMENTS_COUNT = 15
     
     
     
@@ -80,7 +80,7 @@ class PopularTVC: UITableViewController {
         return 1
     }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return DB.count
+        return ELEMENTS_COUNT
     }
     
     
@@ -93,9 +93,11 @@ class PopularTVC: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "popularCell", for: indexPath)
         addSpiner(toItem: cell.imageView!)
         
-        if let baza = DB[indexPath.row]{
+        let link = generateLink(indexPath.row)
+        
+        if let cachedImage = imageCache.object(forKey: link as NSString) {
             cell.textLabel?.text = readEXIF(indexPath.row)
-            cell.imageView?.image = UIImage(data: baza)
+            cell.imageView?.image = UIImage(data: cachedImage as! Data)
             spiner.stopAnimating()
         }
         else {
@@ -103,6 +105,7 @@ class PopularTVC: UITableViewController {
             cell.textLabel?.text = someNames + String(indexPath.row)
             cell.imageView?.image = UIImage(named: "photo")
         }
+
         
         // закруглим изображения
         cell.imageView?.layer.cornerRadius = 10 // аля маска
@@ -119,26 +122,34 @@ class PopularTVC: UITableViewController {
     
     
     
+    func generateLink(_ num:Int) -> String{
+        
+        var link:String = secur + String(num) + ".jpg"
+        if num < 10 {
+            link = secur + "0" + String(num) + ".jpg"
+        }
+        return link
+    }
+    
+    
     
 
     // Получение картинок с сервера
     func fetchImages() -> Void{
         
-        for i in 0..<15{
+        for i in 0..<ELEMENTS_COUNT{
             
-            var link:String = secur + String(i) + ".jpg"
-           
-            if i < 10 {
-                link = secur + "0" + String(i) + ".jpg"
-            }
+            let link = generateLink(i)
 
             if let url = URL(string: link){
+
                 URLSession.shared.dataTask(with: url, completionHandler: {(data, response, error) -> Void in
                     do{
                         let imgData = try Data(contentsOf: url)
+                        //                            let imageToCache = imgData
+                        //                            self.DB[i] = imageToCache
+                        self.imageCache.setObject(imgData as AnyObject, forKey: url.absoluteString as NSString)
                         
-                        self.DB[i] = imgData
-
                         OperationQueue.main.addOperation({
                             self.tableView.reloadData()
                         })
@@ -146,7 +157,7 @@ class PopularTVC: UITableViewController {
                     catch{
                         print(error.localizedDescription)
                     }
-  
+                    
                 }).resume()
             }
             else {
@@ -180,7 +191,10 @@ class PopularTVC: UITableViewController {
     // чтение EXIF
     func readEXIF(_ numOfCell:Int) -> String{
         
-        if let imageSource = CGImageSourceCreateWithData(DB[numOfCell] as! CFData, nil) {
+        let link = generateLink(numOfCell)
+        let imageFromCache = imageCache.object(forKey: link as NSString) // тут не будет nil, т.к. сюда заходим только если эта запись в кэше существует
+        
+        if let imageSource = CGImageSourceCreateWithData(imageFromCache as! CFData, nil) {
             let imageProperties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as! NSDictionary
            
             // дата съемки
@@ -199,14 +213,109 @@ class PopularTVC: UITableViewController {
         }
         return "- - -"
     }
-    
-    
-    
-    
-    
-    
-    
 }
+    
+
+
+
+
+
+
+internal class ImageLoader: UIImageView {
+    
+    var imageURL: URL?
+    
+    let activityIndicator = UIActivityIndicatorView()
+    
+    func loadImageWithUrl(_ url: URL) {
+        
+        // setup activityIndicator...
+        activityIndicator.color = .orange
+        
+        addSubview(activityIndicator)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+        activityIndicator.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+        
+        imageURL = url
+        
+        image = nil
+        activityIndicator.startAnimating()
+        
+        // retrieves image if already available in cache
+        if let imageFromCache = imageCache.object(forKey: url as AnyObject) as? UIImage {
+            
+            self.image = imageFromCache
+            activityIndicator.stopAnimating()
+            return
+        }
+        
+        // image does not available in cache.. so retrieving it from url...
+        URLSession.shared.dataTask(with: url, completionHandler: { (data, response, error) in
+            
+            if error != nil {
+                print(error as Any)
+                self.activityIndicator.stopAnimating()
+                return
+            }
+            
+            DispatchQueue.main.async(execute: {
+                
+                if let unwrappedData = data, let imageToCache = UIImage(data: unwrappedData) {
+                    
+                    if self.imageURL == url {
+                        self.image = imageToCache
+                    }
+                    
+                    imageCache.setObject(imageToCache, forKey: url as AnyObject)
+                }
+                self.activityIndicator.stopAnimating()
+            })
+        }).resume()
+    }
+}
+
+
+
+//extension UIImageView{
+//    
+//    func loadImageUsingUrlString(urlString: String){
+//        
+//        let url = URL(string: urlString)
+//        
+//        image = nil
+//        
+//        URLSession.shared.dataTask(with: url!) {
+//            (data, responses, error) in
+//            
+//            if error != nil{
+//                print(error!)
+//                return
+//            }
+//            
+////            dispatch_async(dispatch_get_main_que(), {
+////                self.image = UIImage(data: data!)
+////            })
+//            
+//            OperationQueue.main.addOperation({
+//                self.image = UIImage(data: data!)
+//            })
+//            
+//        }.resume()
+//    }
+//}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
