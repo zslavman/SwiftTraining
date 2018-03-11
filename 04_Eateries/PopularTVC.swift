@@ -13,10 +13,12 @@ import ImageIO
 class PopularTVC: UITableViewController {
     
     
-    var someNames = ["Марадон", "лебякин", "Джун", "Шмякс", "Трякс", "Куня", "Зиба", "Вороба", "Бодитан", "Леминг", "Лушпак", "Кеды", "Козуб", "Дуря", "Ремминг Буболеховое Счастье нога-лицо"]
+    var someNames = "Запись "
     let secur:String = "http://zslavman.esy.es/imgdb/sri_"
     var somePics:Array<String> = []
     var spiner:UIActivityIndicatorView!
+//    var cache = NSCache<Any, AnyObject>()
+    var cache = NSCache<AnyObject, AnyObject>()
     
     var DB = [Data?](repeatElement(nil, count: 15))
     
@@ -78,7 +80,7 @@ class PopularTVC: UITableViewController {
         return 1
     }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return someNames.count
+        return DB.count
     }
     
     
@@ -98,7 +100,7 @@ class PopularTVC: UITableViewController {
         }
         else {
             // по умолчанию загружаем картинку из проекта
-            cell.textLabel?.text = someNames[indexPath.row]
+            cell.textLabel?.text = someNames + String(indexPath.row)
             cell.imageView?.image = UIImage(named: "photo")
         }
         
@@ -184,14 +186,15 @@ class PopularTVC: UITableViewController {
             // дата съемки
             let exifModel_ = imageProperties.value(forKey: "{Exif}") as! NSDictionary
             let dateTimeOriginal = exifModel_.value(forKey:kCGImagePropertyExifDateTimeOriginal as String) as! NSString
-            print(dateTimeOriginal)
             
             // модель фотика
-            let tiffModel_ = imageProperties.value(forKey: "{TIFF}")
-            let cameraModel = (tiffModel_ as AnyObject).value(forKey: kCGImagePropertyTIFFModel as String) as! NSString
-            print(cameraModel)
+//            let tiffModel_ = imageProperties.value(forKey: "{TIFF}")
+//            let cameraModel = (tiffModel_ as AnyObject).value(forKey: kCGImagePropertyTIFFModel as String) as! NSString
             
-            return dateTimeOriginal as String
+            var str = dateTimeOriginal as String
+            str = str.replacingOccurrences(of: " ", with: " - ")
+            
+            return str
             
         }
         return "- - -"
