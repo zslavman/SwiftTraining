@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "04_Eateries/PopularTVC.swift"
-            timestampString = "542501651.243368"
+            timestampString = "542676316.680433"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "270"
-            endingLineNumber = "270">
+            startingLineNumber = "252"
+            endingLineNumber = "252">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -117,44 +117,14 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "04_Eateries/PopularTVC.swift"
-            timestampString = "542501651.243368"
+            filePath = "04_Eateries/Loader.swift"
+            timestampString = "542670935.979156"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "241"
-            endingLineNumber = "241">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(extension in _4_Eateries):__ObjC.UIImageView.(loadImageUsingUrlString (urlString : Swift.String) -&gt; ()).(closure #1)"
-                  moduleName = "04_Eateries"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/admin/Desktop/2018/02_X-Code/04_Eateries/04_Eateries/PopularTVC.swift"
-                  timestampString = "542494142.878406"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "239"
-                  endingLineNumber = "239"
-                  offsetFromSymbolStart = "472">
-               </Location>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(extension in _4_Eateries):__ObjC.UIImageView.(loadImageUsingUrlString (urlString : Swift.String) -&gt; ()).(closure #1).(closure #1)"
-                  moduleName = "04_Eateries"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/admin/Desktop/2018/02_X-Code/04_Eateries/04_Eateries/PopularTVC.swift"
-                  timestampString = "542494142.885569"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "240"
-                  endingLineNumber = "240"
-                  offsetFromSymbolStart = "16">
-               </Location>
-            </Locations>
+            startingLineNumber = "20"
+            endingLineNumber = "20"
+            landmarkName = "loadImageWithUrl(_:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

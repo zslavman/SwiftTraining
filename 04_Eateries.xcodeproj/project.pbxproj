@@ -14,6 +14,7 @@
 		84174EBE200BE7AF00E76431 /* EateriesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84174EBD200BE7AF00E76431 /* EateriesTableViewController.swift */; };
 		84174EC2200BF36900E76431 /* EateriesTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84174EC1200BF36900E76431 /* EateriesTableViewCell.swift */; };
 		847611A3204C8B4B00C2DD3B /* PopularTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847611A2204C8B4B00C2DD3B /* PopularTVC.swift */; };
+		84B3B5AF2058759F007076C0 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B3B5AE2058759F007076C0 /* ImageLoader.swift */; };
 		84BC4A102015445100CE0DBC /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BC4A0F2015445100CE0DBC /* MapViewController.swift */; };
 		84BC4A132015466700CE0DBC /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BC4A122015466700CE0DBC /* MapKit.framework */; };
 		84BCBE182014AAD700587CAA /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BCBE172014AAD700587CAA /* DetailViewController.swift */; };
@@ -38,6 +39,7 @@
 		84174EBD200BE7AF00E76431 /* EateriesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EateriesTableViewController.swift; sourceTree = "<group>"; };
 		84174EC1200BF36900E76431 /* EateriesTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EateriesTableViewCell.swift; sourceTree = "<group>"; };
 		847611A2204C8B4B00C2DD3B /* PopularTVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopularTVC.swift; sourceTree = "<group>"; };
+		84B3B5AE2058759F007076C0 /* ImageLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 		84BC4A0F2015445100CE0DBC /* MapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		84BC4A122015466700CE0DBC /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		84BCBE172014AAD700587CAA /* DetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
@@ -95,6 +97,7 @@
 				84F28D9420435103004FA7C7 /* AboutTVC.swift */,
 				84EF484E204B2C3200A6861E /* WebVC.swift */,
 				847611A2204C8B4B00C2DD3B /* PopularTVC.swift */,
+				84B3B5AE2058759F007076C0 /* ImageLoader.swift */,
 				84FC95EA203E0F6A009EDD19 /* Page */,
 				84F80AF72013EBA0001FA468 /* Detail */,
 				84174EAF200BE3F400E76431 /* Main.storyboard */,
@@ -227,6 +230,7 @@
 				84BCBE182014AAD700587CAA /* DetailViewController.swift in Sources */,
 				847611A3204C8B4B00C2DD3B /* PopularTVC.swift in Sources */,
 				84F26E4D20151BD500160229 /* RateViewController.swift in Sources */,
+				84B3B5AF2058759F007076C0 /* ImageLoader.swift in Sources */,
 				84BC4A102015445100CE0DBC /* MapViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -17,7 +17,8 @@ class PopularTVC: UITableViewController {
     let secur:String = "http://zslavman.esy.es/imgdb/sri_"
     var somePics:Array<String> = []
     var spiner:UIActivityIndicatorView!
-    var imageCache = NSCache<NSString, AnyObject>()
+//    var imageCache = NSCache<NSString, AnyObject>()
+    var imageCache = [NSString:AnyObject]()
     
 //    var DB = [Data?](repeatElement(nil, count: 15))
     let ELEMENTS_COUNT = 15
@@ -36,6 +37,14 @@ class PopularTVC: UITableViewController {
         //        DispatchQueue.main.async {
         //            self.tableView.reloadData()
         //        }
+        
+        // дергалка за которую дергаешь а оно обновляется! хопа!
+        refreshControl = UIRefreshControl()
+        refreshControl?.backgroundColor = .white
+        refreshControl?.tintColor = #colorLiteral(red: 0.5568627715, green: 0.3529411852, blue: 0.9686274529, alpha: 1)
+        refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        
+        
     }
     
     
@@ -49,6 +58,11 @@ class PopularTVC: UITableViewController {
     }
 
     
+    func refresh()->Void{
+       
+        imageCache.removeAll()
+        fetchImages()
+    }
     
     
     
@@ -95,9 +109,10 @@ class PopularTVC: UITableViewController {
         
         let link = generateLink(indexPath.row)
         
-        if let cachedImage = imageCache.object(forKey: link as NSString) {
+//        if let cachedImage = imageCache.object(forKey: link as NSString) {
+        if imageCache.keys.contains(link as NSString){
             cell.textLabel?.text = readEXIF(indexPath.row)
-            cell.imageView?.image = UIImage(data: cachedImage as! Data)
+            cell.imageView?.image = UIImage(data: imageCache[link as NSString] as! Data)
             spiner.stopAnimating()
         }
         else {
@@ -105,7 +120,7 @@ class PopularTVC: UITableViewController {
             cell.textLabel?.text = someNames + String(indexPath.row)
             cell.imageView?.image = UIImage(named: "photo")
         }
-
+        
         
         // закруглим изображения
         cell.imageView?.layer.cornerRadius = 10 // аля маска
@@ -146,12 +161,12 @@ class PopularTVC: UITableViewController {
                 URLSession.shared.dataTask(with: url, completionHandler: {(data, response, error) -> Void in
                     do{
                         let imgData = try Data(contentsOf: url)
-                        //                            let imageToCache = imgData
-                        //                            self.DB[i] = imageToCache
-                        self.imageCache.setObject(imgData as AnyObject, forKey: url.absoluteString as NSString)
+//                        self.imageCache.setObject(imgData as AnyObject, forKey: url.absoluteString as NSString)
+                        self.imageCache.updateValue(imgData as AnyObject, forKey: url.absoluteString as NSString)
                         
                         OperationQueue.main.addOperation({
                             self.tableView.reloadData()
+                            self.refreshControl?.endRefreshing() // завершаем обновление по оттягиванию сверху
                         })
                     }
                     catch{
@@ -192,7 +207,8 @@ class PopularTVC: UITableViewController {
     func readEXIF(_ numOfCell:Int) -> String{
         
         let link = generateLink(numOfCell)
-        let imageFromCache = imageCache.object(forKey: link as NSString) // тут не будет nil, т.к. сюда заходим только если эта запись в кэше существует
+//        let imageFromCache = imageCache.object(forKey: link as NSString) // тут не будет nil, т.к. сюда заходим только если эта запись в кэше существует
+        let imageFromCache = imageCache[link as NSString]
         
         if let imageSource = CGImageSourceCreateWithData(imageFromCache as! CFData, nil) {
             let imageProperties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as! NSDictionary
@@ -221,59 +237,6 @@ class PopularTVC: UITableViewController {
 
 
 
-internal class ImageLoader: UIImageView {
-    
-    var imageURL: URL?
-    
-    let activityIndicator = UIActivityIndicatorView()
-    
-    func loadImageWithUrl(_ url: URL) {
-        
-        // setup activityIndicator...
-        activityIndicator.color = .orange
-        
-        addSubview(activityIndicator)
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
-        activityIndicator.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
-        
-        imageURL = url
-        
-        image = nil
-        activityIndicator.startAnimating()
-        
-        // retrieves image if already available in cache
-        if let imageFromCache = imageCache.object(forKey: url as AnyObject) as? UIImage {
-            
-            self.image = imageFromCache
-            activityIndicator.stopAnimating()
-            return
-        }
-        
-        // image does not available in cache.. so retrieving it from url...
-        URLSession.shared.dataTask(with: url, completionHandler: { (data, response, error) in
-            
-            if error != nil {
-                print(error as Any)
-                self.activityIndicator.stopAnimating()
-                return
-            }
-            
-            DispatchQueue.main.async(execute: {
-                
-                if let unwrappedData = data, let imageToCache = UIImage(data: unwrappedData) {
-                    
-                    if self.imageURL == url {
-                        self.image = imageToCache
-                    }
-                    
-                    imageCache.setObject(imageToCache, forKey: url as AnyObject)
-                }
-                self.activityIndicator.stopAnimating()
-            })
-        }).resume()
-    }
-}
 
 
 
