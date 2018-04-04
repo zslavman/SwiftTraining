@@ -315,11 +315,11 @@ class EateriesTableViewController: UITableViewController, NSFetchedResultsContro
         }
         
         // действие на удаление
-        let delete = UITableViewRowAction(style: .default, title: "Удалить") {
-            (action, indexPath) in
+//        let delete = UITableViewRowAction(style: .default, title: "Удалить") {
+//            (action, indexPath) in
+        let delete = UITableViewRowAction(style: .default, title: "Удалить", handler: { (action, indexPath) -> Void in
+
             self.restaurants.remove(at: indexPath.row)
-//            self.someNames.remove(at: indexPath.row)
-//            self.visitedItems.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .top)
             
             
@@ -336,7 +336,7 @@ class EateriesTableViewController: UITableViewController, NSFetchedResultsContro
                     print("Не удалось сохранить т.к. \(error.localizedDescription)")
                 }
             }
-        }
+        })
         
         // поменяем цвета кнопок Удалить и Поделиться
         share.backgroundColor = #colorLiteral(red: 0.721867955, green: 0.7081359182, blue: 0.9016706576, alpha: 1)

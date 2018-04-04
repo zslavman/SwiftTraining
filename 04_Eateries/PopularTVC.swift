@@ -44,8 +44,10 @@ class PopularTVC: UITableViewController {
         refreshControl?.tintColor = #colorLiteral(red: 0.5568627715, green: 0.3529411852, blue: 0.9686274529, alpha: 1)
         refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
         
-        
     }
+        
+    
+
     
     
     
@@ -53,14 +55,19 @@ class PopularTVC: UITableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        fetchImages()
-        
+        print("imCount = \(imCount)")
+        print("Записей в кэше = \(imageCache.count)")
+        if imageCache.count == 0 {
+            fetchImages()
+        }
     }
 
     
+    
+    
     func refresh()->Void{
-       
         imageCache.removeAll()
+        imCount = 0
         fetchImages()
     }
     
@@ -148,44 +155,77 @@ class PopularTVC: UITableViewController {
     
     
     
+    private var imCount:Int = 0
 
     // Получение картинок с сервера
-    func fetchImages() -> Void{
+//    func fetchImages() -> Void{
+//        
+//        for i in 0..<ELEMENTS_COUNT{
+//            
+//            let link = generateLink(i)
+//
+//            if let url = URL(string: link){
+//
+//                URLSession.shared.dataTask(with: url, completionHandler: {(data, response, error) -> Void in
+//                    do{
+//                        let imgData = try Data(contentsOf: url)
+////                        self.imageCache.setObject(imgData as AnyObject, forKey: url.absoluteString as NSString)
+//                        self.imageCache.updateValue(imgData as AnyObject, forKey: url.absoluteString as NSString)
+//                        
+//                        self.imCount += 1
+//                        print("Размер картинки:  \(round(Double(data!.count/1000))) Кб, \(self.imCount)/\(self.ELEMENTS_COUNT)")// Размер картинки: 125 Кб, 5/15
+//                        
+//                        OperationQueue.main.addOperation({
+//                            self.tableView.reloadData()
+//                            self.refreshControl?.endRefreshing() // завершаем обновление по оттягиванию сверху
+//                        })
+//                    }
+//                    catch{
+//                        print(error.localizedDescription)
+//                    }
+//                    
+//                }).resume()
+//            }
+//            else {
+//                print("Не удается загрузить: \(link)")
+//            }
+//        }
+//    }
+    
+    
+    
+    
+    
+    
+    public func fetchImages() -> Void{
         
         for i in 0..<ELEMENTS_COUNT{
             
-            let link = generateLink(i)
-
-            if let url = URL(string: link){
-
-                URLSession.shared.dataTask(with: url, completionHandler: {(data, response, error) -> Void in
-                    do{
-                        let imgData = try Data(contentsOf: url)
-//                        self.imageCache.setObject(imgData as AnyObject, forKey: url.absoluteString as NSString)
-                        self.imageCache.updateValue(imgData as AnyObject, forKey: url.absoluteString as NSString)
-                        
-                        OperationQueue.main.addOperation({
-                            self.tableView.reloadData()
-                            self.refreshControl?.endRefreshing() // завершаем обновление по оттягиванию сверху
-                        })
-                    }
-                    catch{
-                        print(error.localizedDescription)
-                    }
+            let link = URL(string: generateLink(i)) // получаем URL
+            
+            // создаем очередь
+            let queue = DispatchQueue.global(qos: .background)
+            queue.async { // добавляем процесс в очередь асинхронно
+                guard let imgURL = link, let imgData = try? Data(contentsOf: imgURL) else { return } // если link существует (не битый), пытаемся получить данные картинки, иначе выходим
+                
+                // возвращаемся в основной поток (все обновления интерфейса должны происходить ТОЛЬКО! в основном потоке)
+                DispatchQueue.main.async {
+                    self.imageCache.updateValue(imgData as AnyObject, forKey: imgURL.absoluteString as NSString)
+                    self.imCount += 1
                     
-                }).resume()
+                    self.tableView.reloadData()
+                    self.refreshControl?.endRefreshing() // завершаем обновление по оттягиванию сверху
+                }
             }
-            else {
-                print("Не удается загрузить: \(link)")
-            }
-
-            
-            
         }
     }
-                
+        
     
     
+    
+        
+        
+
     
     
 
@@ -223,6 +263,7 @@ class PopularTVC: UITableViewController {
             
             var str = dateTimeOriginal as String
             str = str.replacingOccurrences(of: " ", with: " - ")
+            
             
             return str
             
